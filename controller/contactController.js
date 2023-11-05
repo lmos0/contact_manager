@@ -48,7 +48,7 @@ const updateContact = async (req, res) => {
     const contact = await Contact.findById(req.params.id)
     if(!contact){
         res.status(404)
-        throw new Error("Contato nãn econtrado")
+        throw new Error("Contato não econtrado")
     }
     const updatedContact = await Contact.findByIdAndUpdate(
         req.params.id,
@@ -67,9 +67,21 @@ const updateContact = async (req, res) => {
 }
 
 const deleteContact = async (req,res) => {
+    try{
+    const contact = await Contact.findByIdAndDelete(req.params.id)
+    if(!contact) {
+        res.status(404)
+            throw new Error("Contato não econtrado")
+        
+
+    }
     res.status(200).json({
-        mensagem: `Você deletou o contato ${req.params.id}`
+        mensagem: `Você deletou o contato ${contact}`
     })
 
+    }
+    catch(error){
+        res.status(500).json({error:error.message})
+    }
 }
 module.exports = {getContacts, createContact, getContact, deleteContact, updateContact}
