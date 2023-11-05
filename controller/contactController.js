@@ -12,12 +12,14 @@ const createContact = async (req, res) => {
         res.status(400)
         return
     }
-    res.status(201).json({
-        mensagem: `Contato criado com sucesso`,
+
+    const contact = await Contact.create({
         name,
         email,
         phone
-    })}
+    })
+    res.status(201).json(
+    contact)}
 
     catch(error){
         console.error(error)
@@ -27,16 +29,41 @@ const createContact = async (req, res) => {
 }
 
 const getContact = async (req,res) => {
-    res.status(200).json({
-        mensagem: `Contato encontrado: ${req.params.id}`
-    })
+    try{
+    const contact = await Contact.findById(req.params.id)
+    if(!contact){
+        res.status(404)
+        throw new Error("Contato não encontrado")
+    }
+    res.status(200).json(contact)
+}
+catch(error){
+    res.status(500).json({error:error.message})
+}
 
 }
 
 const updateContact = async (req, res) => {
-    res.status(200).json({
-        mensagem: `Você atualizou o contato para ${req.params.id}`
-    })
+    try{
+    const contact = await Contact.findById(req.params.id)
+    if(!contact){
+        res.status(404)
+        throw new Error("Contato nãn econtrado")
+    }
+    const updatedContact = await Contact.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {new:true}
+    )
+
+    res.status(200).json(updateContact)
+
+    }
+
+    catch(error){
+        res.status(500).json({error:error.message})
+    }
+
 }
 
 const deleteContact = async (req,res) => {
