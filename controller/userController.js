@@ -1,5 +1,6 @@
 const User = require('../models/userModel')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const registerUser = async (req,res) => {
     try{
@@ -7,15 +8,16 @@ const registerUser = async (req,res) => {
     if(!username || !email || !password){
         res.status(400)
         throw new Error('Todos os campos são obrigatórios')
+        return
     }
     const userAvailability = await User.findOne({email})
     if(userAvailability){
         res.status(400)
         throw new Error('E-mail já cadastrado')
+        return
     }
     const hashedPassword = await bcrypt.hash(password, 10)
     console.log(hashedPassword)
-    res.json({message: "Usuário registrado!"})
 
     const user = await User.create({
         username,
@@ -37,7 +39,31 @@ const registerUser = async (req,res) => {
 }
 
 const loginUser = async(req,res) => {
-    res.json({ message: "Usuário logado"})
+    const {email, password} = req.body
+    if (!email || !password){
+        res.status(400)
+        throw new Error('Todos os campos precisam ser preenchidos')
+    }
+    const user = await User.findOne({email})
+
+    if(user && (await bcrypt.compare(password, user.password))){
+        const accessToken = jwt.sign(
+        {
+            user: {
+                username: user.username,
+                email: user.email,
+                id: user.id
+            },
+        },
+            process.env.ACCESS_TOKEN_SECRET,
+            {expiresIn: "1m"}
+        )
+        res.status(200).json({accessToken})
+    }
+    else{
+        res.status(401)
+        throw new Error ("e-mail ou senha não são válidas")
+    }
 }
 
 const sessionUser = async(req,res) =>{
