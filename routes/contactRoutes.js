@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const {getContacts, getContact, updateContact, deleteContact, createContact} = require('../controller/contactController')
 
-const {validateToken} = require('../middleware/validationHandler')
+const validateToken = require('../middleware/validationHandler')
 
 router.use(validateToken)
 

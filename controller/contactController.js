@@ -16,7 +16,8 @@ const createContact = async (req, res) => {
     const contact = await Contact.create({
         name,
         email,
-        phone
+        phone,
+        user_id:req.user.id
     })
     res.status(201).json(
     contact)}
@@ -50,6 +51,10 @@ const updateContact = async (req, res) => {
         res.status(404)
         throw new Error("Contato não econtrado")
     }
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(403)
+        throw new Error('Permissão não existe')
+    }
     const updatedContact = await Contact.findByIdAndUpdate(
         req.params.id,
         req.body,
@@ -73,8 +78,11 @@ const deleteContact = async (req,res) => {
         res.status(404)
             throw new Error("Contato não econtrado")
         
-
     }
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(403)
+        throw new Error('Permissão não existe')}
+    
     res.status(200).json({
         mensagem: `Você deletou o contato ${contact}`
     })
