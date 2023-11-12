@@ -1,7 +1,7 @@
 const Contact = require('../models/contactModel')
 
 const getContacts =  async (req, res) => {
-    const contacts = await Contact.find()
+    const contacts = await Contact.find({user_id:req.user.id})
     res.status(200).json(contacts)}
 
 const createContact = async (req, res) => {
